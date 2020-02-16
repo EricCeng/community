@@ -89,6 +89,36 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>1.5.9.RELEASE</version>
             </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>6.2.3</version>
+                <configuration>
+                    <url>jdbc:h2:~/com</url>
+                    <user>sa</user>
+                    <password>123</password>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>1.4.200</version>
+                    </dependency>
+                </dependencies>
+<!--                <configuration>-->
+<!--                    <url>jdbc:mysql://localhost:3306/test?serverTimezone=UTC</url>-->
+<!--                    <user>root</user>-->
+<!--                    <password>123456</password>-->
+<!--                </configuration>-->
+<!--                <dependencies>-->
+<!--                    <dependency>-->
+<!--                        <groupId>mysql</groupId>-->
+<!--                        <artifactId>mysql-connector-java</artifactId>-->
+<!--                        <version>8.0.15</version>-->
+<!--                        <scope>runtime</scope>-->
+<!--                    </dependency>-->
+<!--                </dependencies>-->
+            </plugin>
         </plugins>
     </build>
 
