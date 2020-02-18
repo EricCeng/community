@@ -63,6 +63,7 @@ public class AuthorizeController {
             user.setAccountId(String.valueOf(githubUser.getId())); // 强转
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
+            user.setAvatarUrl(githubUser.getAvatar_url());
             userMapper.insert(user);
 
             //登陆成功，自动写入 cookie，判断 token
