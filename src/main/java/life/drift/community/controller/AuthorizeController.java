@@ -36,7 +36,7 @@ public class AuthorizeController {
     @Value("${github.redirect.uri}")
     private String redirectUri;
 
-    @Autowired
+    @Autowired(required=false)
     private UserMapper userMapper;
 
     @GetMapping("/callback")

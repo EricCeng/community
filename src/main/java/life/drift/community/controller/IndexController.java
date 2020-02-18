@@ -1,7 +1,9 @@
 package life.drift.community.controller;
 
+import life.drift.community.dto.QuestionDTO;
 import life.drift.community.mapper.UserMapper;
 import life.drift.community.model.User;
+import life.drift.community.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author 51514
@@ -16,11 +19,15 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class IndexController {
 
-    @Autowired
+    @Autowired(required = false)
     private UserMapper userMapper;
 
-    @GetMapping("/index")
-    public String index(HttpServletRequest request) {
+    @Autowired(required = false)
+    private QuestionService questionService;
+
+    @GetMapping({"/", "/index"})
+    public String index(HttpServletRequest request,
+                        Model model) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null && cookies.length != 0)
             for (Cookie cookie : cookies) {
@@ -34,6 +41,11 @@ public class IndexController {
                     break;
                 }
             }
+
+        //显示条目信息
+        List<QuestionDTO> questionList = questionService.list();
+        model.addAttribute("questions", questionList);
+
         return "index";
     }
 
