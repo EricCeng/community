@@ -5,6 +5,7 @@ import life.drift.community.dto.GithubUser;
 import life.drift.community.mapper.UserMapper;
 import life.drift.community.model.User;
 import life.drift.community.provider.GithubProvider;
+import life.drift.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
@@ -36,8 +38,8 @@ public class AuthorizeController {
     @Value("${github.redirect.uri}")
     private String redirectUri;
 
-    @Autowired(required=false)
-    private UserMapper userMapper;
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/callback")
     public String callBack(@RequestParam(name = "code") String code,
@@ -61,10 +63,9 @@ public class AuthorizeController {
             user.setToken(token);
             user.setName(githubUser.getName());
             user.setAccountId(String.valueOf(githubUser.getId())); // 强转
-            user.setGmtCreate(System.currentTimeMillis());
-            user.setGmtModified(user.getGmtCreate());
             user.setAvatarUrl(githubUser.getAvatar_url());
-            userMapper.insert(user);
+
+            userService.createOrUpdate(user);
 
             //登陆成功，自动写入 cookie，判断 token
             response.addCookie(new Cookie("token", token));
@@ -74,5 +75,16 @@ public class AuthorizeController {
             //登陆失败，重新登陆
             return "redirect:";
         }
+    }
+
+    //退出登陆
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request,
+                         HttpServletResponse response){
+        request.getSession().removeAttribute("user");
+        Cookie cookie = new Cookie("token", null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "redirect:";
     }
 }

@@ -32,4 +32,7 @@ create table USER
         primary key (ID)
 );
 
+mvn flyway:migrate
+mvn -Dmybatis.generator.overwrite=true mybatis-generator:generate
+
 

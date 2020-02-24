@@ -1,17 +1,13 @@
 package life.drift.community.controller;
 
-import life.drift.community.dto.QuestionDTO;
-import life.drift.community.mapper.UserMapper;
-import life.drift.community.model.User;
+import life.drift.community.dto.PaginationDTO;
 import life.drift.community.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * @author 51514
@@ -19,32 +15,18 @@ import java.util.List;
 @Controller
 public class IndexController {
 
-    @Autowired(required = false)
-    private UserMapper userMapper;
-
-    @Autowired(required = false)
+    @Autowired
     private QuestionService questionService;
 
     @GetMapping({"/", "/index"})
     public String index(HttpServletRequest request,
-                        Model model) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null && cookies.length != 0)
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("token")) {
-                    String token = cookie.getValue();
-                    User user = userMapper.findByToken(token);
-                    if (user != null) {
-                        request.getSession().setAttribute("user", user);
-                    }
-                    //之后还可以补充，比如登陆超时，异地登陆--重新登陆
-                    break;
-                }
-            }
+                        Model model,
+                        @RequestParam(name = "page", defaultValue = "1") Integer page,
+                        @RequestParam(name = "size", defaultValue = "5") Integer size) {
 
         //显示条目信息
-        List<QuestionDTO> questionList = questionService.list();
-        model.addAttribute("questions", questionList);
+        PaginationDTO pagination = questionService.list(page, size);
+        model.addAttribute("pagination", pagination);
 
         return "index";
     }
