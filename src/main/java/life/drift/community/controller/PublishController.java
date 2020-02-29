@@ -1,6 +1,7 @@
 package life.drift.community.controller;
 
 import life.drift.community.dto.QuestionDTO;
+import life.drift.community.exception.CustomizeErrorCode;
 import life.drift.community.model.Question;
 import life.drift.community.model.User;
 import life.drift.community.service.QuestionService;
@@ -21,7 +22,7 @@ public class PublishController {
     private QuestionService questionService;
 
     @GetMapping("/publish/{id}")
-    public String edit(@PathVariable(name = "id") Integer id,
+    public String edit(@PathVariable(name = "id") Long id,
                        Model model) {
         QuestionDTO question = questionService.getById(id);
 
@@ -42,7 +43,7 @@ public class PublishController {
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "tag", required = false) String tag,
-            @RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "id", required = false) Long id,
             HttpServletRequest request,
             Model model) {
 
@@ -52,15 +53,15 @@ public class PublishController {
         model.addAttribute("tag", tag);
 
         if (title == null || title == "") {
-            model.addAttribute("error", "标题不能为空！");
+            model.addAttribute("error", "标题不能为空哦！");
             return "publish";
         }
         if (description == null || description == "") {
-            model.addAttribute("error", "问题补充不能为空！");
+            model.addAttribute("error", "问题补充不能为空哦！");
             return "publish";
         }
         if (tag == null || tag == "") {
-            model.addAttribute("error", "标签不能为空！");
+            model.addAttribute("error", "标签不能为空哦！");
             return "publish";
         }
 
@@ -69,7 +70,7 @@ public class PublishController {
         User user = (User) request.getSession().getAttribute("user");
 
         if (user == null) {
-            model.addAttribute("error", "用户未登陆！");
+            model.addAttribute("error", CustomizeErrorCode.NOT_LOGIN.getMessage());
             return "publish";
         }
 

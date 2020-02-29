@@ -15,9 +15,17 @@
 
     <!-- 处理 多线程并发 -->
 
+    <!-- 浏览数 -->
     <update id="incView" parameterType="life.drift.community.model.Question">
         update QUESTION
         set VIEW_COUNT = VIEW_COUNT + #{viewCount,jdbcType=INTEGER}
+        where id = #{id}
+    </update>
+
+    <!-- 评论数 -->
+    <update id="incCommentCount" parameterType="life.drift.community.model.Question">
+        update QUESTION
+        set COMMENT_COUNT = COMMENT_COUNT + #{commentCount,jdbcType=INTEGER}
         where id = #{id}
     </update>
 </mapper>

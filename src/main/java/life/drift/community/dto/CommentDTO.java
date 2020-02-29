@@ -4,16 +4,15 @@ import life.drift.community.model.User;
 import lombok.Data;
 
 @Data
-public class QuestionDTO {
+public class CommentDTO {
     private Long id;
-    private String title;
-    private String description;
+    private Long parentId;
+    private Integer type;
+    private Long commentator;
     private Long gmtCreate;
     private Long gmtModified;
-    private Integer creator;
-    private String tag;
-    private Integer viewCount;
     private Integer commentCount;
-    private Integer likeCount;
+    private Long likeCount;
+    private String content;
     private User user;
 }

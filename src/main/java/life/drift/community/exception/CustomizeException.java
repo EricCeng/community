@@ -2,13 +2,11 @@ package life.drift.community.exception;
 
 public class CustomizeException extends RuntimeException {
     private String message;
+    private Integer code;
 
     public CustomizeException(CustomizeErrorCodeInterface errorCodeInterface) {
+        this.code = errorCodeInterface.getCode();
         this.message = errorCodeInterface.getMessage();
-    }
-
-    public CustomizeException(String message) {
-        this.message = message;
     }
 
     @Override
@@ -16,4 +14,7 @@ public class CustomizeException extends RuntimeException {
         return message;
     }
 
+    public Integer getCode() {
+        return code;
+    }
 }

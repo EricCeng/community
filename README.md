@@ -32,7 +32,11 @@ create table USER
         primary key (ID)
 );
 
+
+# 命令
+
 mvn flyway:migrate
+
 mvn -Dmybatis.generator.overwrite=true mybatis-generator:generate
 
 
