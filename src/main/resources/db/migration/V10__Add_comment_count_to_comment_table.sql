@@ -1,2 +1,2 @@
-alter table COMMENT add comment_count int default 0;
+alter table COMMENT add comment_count bigint default 0;
 

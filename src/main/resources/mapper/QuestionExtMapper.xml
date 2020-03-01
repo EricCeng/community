@@ -28,4 +28,12 @@
         set COMMENT_COUNT = COMMENT_COUNT + #{commentCount,jdbcType=INTEGER}
         where id = #{id}
     </update>
+
+    <!-- 正则表达式搜索 -->
+    <select id="selectRelated" parameterType="life.drift.community.model.Question" resultMap="BaseResultMap">
+        select *
+        from QUESTION
+        where id != #{id}
+          and tag regexp #{tag}
+    </select>
 </mapper>

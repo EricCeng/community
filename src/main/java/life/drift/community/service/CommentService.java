@@ -60,7 +60,7 @@ public class CommentService {
 
             commentMapper.insert(comment);
 
-            //增加评论数
+            //二级评论数
             Comment parentComment = new Comment();
             parentComment.setId(comment.getParentId());
             parentComment.setCommentCount(1);
