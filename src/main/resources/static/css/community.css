@@ -43,7 +43,6 @@ body {
 }
 
 .community-menu {
-    display: block;
     color: #999;
     font-size: 12px;
     margin-bottom: 10px;
@@ -151,4 +150,24 @@ body {
     margin-top: 5px;
     padding-top: 5px;
     margin-bottom: 10px;
+}
+
+.publish-tag-tab {
+    margin-top: 5px;
+    display: none;
+    padding-top: 5px;
+}
+
+.publish-nav-tab {
+    font-size: 12px;
+}
+
+.publish-tag-tab .label-info {
+    white-space: normal;
+    margin: 5px 5px;
+    display: inline-block;
+}
+
+.navigation-badge {
+    background-color: #d9534f;
 }

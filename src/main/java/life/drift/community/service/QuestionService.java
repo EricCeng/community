@@ -81,7 +81,7 @@ public class QuestionService {
             questionDTOList.add(questionDTO);
         }
 
-        paginationDTO.setQuestions(questionDTOList);
+        paginationDTO.setData(questionDTOList);
         return paginationDTO;
     }
 
@@ -118,6 +118,8 @@ public class QuestionService {
         QuestionExample example = new QuestionExample();
         example.createCriteria()
                 .andCreatorEqualTo(userId);
+
+        example.setOrderByClause("gmt_create desc");
         List<Question> questions = questionMapper.selectByExampleWithRowbounds(example, new RowBounds(offset, size));
         List<QuestionDTO> questionDTOList = new ArrayList<>();
 
@@ -130,7 +132,7 @@ public class QuestionService {
             questionDTOList.add(questionDTO);
         }
 
-        paginationDTO.setQuestions(questionDTOList);
+        paginationDTO.setData(questionDTOList);
         return paginationDTO;
 
     }
@@ -154,9 +156,9 @@ public class QuestionService {
         if (question.getId() == null) {
             question.setGmtCreate(System.currentTimeMillis());
             question.setGmtModified(question.getGmtCreate());
-            question.setViewCount(0);
-            question.setLikeCount(0);
-            question.setCommentCount(0);
+            question.setViewCount(0L);
+            question.setLikeCount(0L);
+            question.setCommentCount(0L);
             questionMapper.insert(question);
         } else {
             //更新
@@ -179,7 +181,7 @@ public class QuestionService {
     public void incView(Long id) {
         Question question = new Question();
         question.setId(id);
-        question.setViewCount(1);
+        question.setViewCount(1L);
         questionExtMapper.incView(question);
     }
 

@@ -2,6 +2,8 @@ package life.drift.community.service;
 
 import life.drift.community.dto.CommentDTO;
 import life.drift.community.enums.CommentTypeEnum;
+import life.drift.community.enums.NotificationEnum;
+import life.drift.community.enums.NotificationStatusEnum;
 import life.drift.community.exception.CustomizeErrorCode;
 import life.drift.community.exception.CustomizeException;
 import life.drift.community.mapper.*;
@@ -35,6 +37,9 @@ public class CommentService {
     @Autowired
     private CommentExtMapper commentExtMapper;
 
+    @Autowired
+    private NotificationMapper notificationMapper;
+
     // @Transactional 可给整个方法体添加事务，自动管理事务 当一条语句执行成功另一条失败时，事务将会发生回滚
     // 简单来说：评论数若因错误增加失败，评论插入也不会执行
 
@@ -42,7 +47,7 @@ public class CommentService {
 //    为了保证数据的有效，需要功能入口统一管理事务，不仅仅限于是几个表的操作，可能是多个SQL的操作。
 //    从设计上来说，为了规范代码写法，可能要去入口service全部加入事务控制，便于后续扩展。
     @Transactional
-    public void insert(Comment comment) {
+    public void insert(Comment comment, User commentator) {
         if (comment.getParentId() == null || comment.getParentId() == 0) {
             throw new CustomizeException(CustomizeErrorCode.TARGET_PARAM_NOT_FOUND);
         }
@@ -53,9 +58,15 @@ public class CommentService {
 
         if (comment.getType().equals(CommentTypeEnum.COMMENT.getType())) {
             // 回复评论
+            // dbComment 是评论者
             Comment dbComment = commentMapper.selectByPrimaryKey(comment.getParentId());
             if (dbComment == null) {
                 throw new CustomizeException(CustomizeErrorCode.COMMENT_NOT_FOUND);
+            }
+
+            Question question = questionMapper.selectByPrimaryKey(dbComment.getParentId());
+            if (question == null) {
+                throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
             }
 
             commentMapper.insert(comment);
@@ -63,8 +74,11 @@ public class CommentService {
             //二级评论数
             Comment parentComment = new Comment();
             parentComment.setId(comment.getParentId());
-            parentComment.setCommentCount(1);
+            parentComment.setCommentCount(1L);
             commentExtMapper.incCommentCount(parentComment);
+
+            //创建通知 评论回复
+            createNotify(comment, dbComment.getCommentator(), dbComment.getContent(), commentator.getName(), NotificationEnum.REPLY_COMMENT, question.getId());
 
 
         } else {
@@ -77,10 +91,27 @@ public class CommentService {
             commentMapper.insert(comment);
 
             //评论数
-            question.setCommentCount(1);
+            question.setCommentCount(1L);
             questionExtMapper.incCommentCount(question);
             // question 表的评论数无法实时更新，可尝试触发器调用存储过程？？？
+
+            //创建通知 问题回复
+            createNotify(comment, question.getCreator(), question.getTitle(), commentator.getName(), NotificationEnum.REPLY_QUESTION, question.getId());
         }
+    }
+
+    //创建通知 封装方法
+    private void createNotify(Comment comment, Long receiver, String outerTitle, String notifierName, NotificationEnum notificationType, Long outerId) {
+        Notification notification = new Notification();
+        notification.setGmtCreate(System.currentTimeMillis());
+        notification.setType(notificationType.getType());
+        notification.setOuterid(outerId);
+        notification.setNotifier(comment.getCommentator());
+        notification.setStatus(NotificationStatusEnum.UNREAD.getStatus());
+        notification.setReceiver(receiver);
+        notification.setNotifierName(notifierName);
+        notification.setOuterTitle(outerTitle);
+        notificationMapper.insert(notification);
     }
 
     public List<CommentDTO> listByTargetId(Long id, CommentTypeEnum type) {
