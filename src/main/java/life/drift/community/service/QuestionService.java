@@ -2,6 +2,7 @@ package life.drift.community.service;
 
 import life.drift.community.dto.PaginationDTO;
 import life.drift.community.dto.QuestionDTO;
+import life.drift.community.dto.QuestionQueryDTO;
 import life.drift.community.exception.CustomizeErrorCode;
 import life.drift.community.exception.CustomizeException;
 import life.drift.community.mapper.QuestionExtMapper;
@@ -33,12 +34,22 @@ public class QuestionService {
     @Autowired
     private QuestionExtMapper questionExtMapper;
 
-    public PaginationDTO list(Integer page, Integer size) {
+    public PaginationDTO list(String search, Integer page, Integer size) {
+
+        if (StringUtils.isNotBlank(search)) {
+            String[] tags = StringUtils.split(search, " ");
+            search = Arrays.stream(tags).collect(Collectors.joining("|"));
+        }
+
 
         PaginationDTO paginationDTO = new PaginationDTO();
 
         Integer totalPage;
-        Integer totalCount = (int) questionMapper.countByExample(new QuestionExample());
+
+        QuestionQueryDTO questionQueryDTO = new QuestionQueryDTO();
+        questionQueryDTO.setSearch(search);
+
+        Integer totalCount = questionExtMapper.countBySearch(questionQueryDTO);
 
         //确认分页数
         if (totalCount % size == 0) {
@@ -56,20 +67,14 @@ public class QuestionService {
         }
         paginationDTO.setPagination(totalPage, page);
 
-        //页码容错
-        if (page < 1) {
-            page = 1;
-        }
-        if (page > totalPage) {
-            page = totalPage;
-        }
-
         //分页公式： size*(page-1)
         Integer offset = size * (page - 1);
         QuestionExample questionExample = new QuestionExample();
 
         questionExample.setOrderByClause("gmt_create desc");
-        List<Question> questions = questionMapper.selectByExampleWithRowbounds(questionExample, new RowBounds(offset, size));
+        questionQueryDTO.setSize(size);
+        questionQueryDTO.setPage(offset);
+        List<Question> questions = questionExtMapper.selectBySearch(questionQueryDTO);
         List<QuestionDTO> questionDTOList = new ArrayList<>();
 
         for (Question question : questions) {
